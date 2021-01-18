@@ -5,6 +5,9 @@ using UnityEngine;
 public class Siren : MonoBehaviour
 {
     private int _volume;
+    private int _minVolume;
+    private int _maxVolume;
+    private float _volumeNormalizationCoef;
     private AudioSource _sirenAudioSource;
     private Coroutine _startSirenCorutine;
     private Coroutine _stopSirenCorutine;
@@ -12,7 +15,9 @@ public class Siren : MonoBehaviour
     private void Start()
     {
         _sirenAudioSource = GetComponent<AudioSource>();
-        _volume = 250;
+        _volume = _minVolume = 250;
+        _maxVolume = 1000;
+        _volumeNormalizationCoef = 0.001f;
     }
 
     public void StartSiren()
@@ -33,7 +38,7 @@ public class Siren : MonoBehaviour
 
     private IEnumerator StartSirenCorutine()
     {
-        while (++_volume <= 1000)
+        while (++_volume <= _maxVolume)
         {
 
             if (!_sirenAudioSource.isPlaying)
@@ -41,7 +46,7 @@ public class Siren : MonoBehaviour
                 _sirenAudioSource.Play();
             }
 
-            _sirenAudioSource.volume = _volume * 0.001f;
+            _sirenAudioSource.volume = _volume * _volumeNormalizationCoef;
 
             yield return null;
         }
@@ -49,11 +54,11 @@ public class Siren : MonoBehaviour
 
     private IEnumerator StopSirenCorutine()
     {
-        while (--_volume >= 250)
+        while (--_volume >= _minVolume)
         {
-            _sirenAudioSource.volume = _volume * 0.001f;
+            _sirenAudioSource.volume = _volume * _volumeNormalizationCoef;
 
-            if (_sirenAudioSource.isPlaying && _volume == 250)
+            if (_sirenAudioSource.isPlaying && _volume == _minVolume)
             {
                 _sirenAudioSource.Stop();
             }
